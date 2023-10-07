@@ -123,7 +123,7 @@ function adapter.discover_positions(path)
     ; Matches: `describe('context', () => {})`
     ((call_expression
       function: (identifier) @func_name (#eq? @func_name "describe")
-      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function)])
+      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function) (call_expression function: (identifier) @util_name (#any-of? @util_name "fakeAsync" "waitForAsync"))])
     )) @namespace.definition
     ; Matches: `describe('context', function() {})`
     ((call_expression
@@ -135,7 +135,7 @@ function adapter.discover_positions(path)
       function: (member_expression
         object: (identifier) @func_name (#any-of? @func_name "describe")
       )
-      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function)])
+      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function) (call_expression function: (identifier) @util_name (#any-of? @util_name "fakeAsync" "waitForAsync"))])
     )) @namespace.definition
     ; Matches: `describe.only('context', function() {})`
     ((call_expression
@@ -151,7 +151,7 @@ function adapter.discover_positions(path)
           object: (identifier) @func_name (#any-of? @func_name "describe")
         )
       )
-      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function)])
+      arguments: (arguments (string (string_fragment) @namespace.name) [(arrow_function) (call_expression function: (identifier) @util_name (#any-of? @util_name "fakeAsync" "waitForAsync"))])
     )) @namespace.definition
     ; Matches: `describe.each(['data'])('context', function() {})`
     ((call_expression
@@ -167,7 +167,7 @@ function adapter.discover_positions(path)
     ; Matches: `test('test') / it('test')`
     ((call_expression
       function: (identifier) @func_name (#any-of? @func_name "it" "test")
-      arguments: (arguments (string (string_fragment) @test.name) [(arrow_function) (function) (call_expression)])
+      arguments: (arguments (string (string_fragment) @test.name) [(arrow_function) (function) (call_expression function: (identifier) @util_name (#any-of? @util_name "fakeAsync" "waitForAsync"))])
     )) @test.definition
     ; Matches: `test.only('test') / it.only('test')`
     ((call_expression
@@ -183,7 +183,7 @@ function adapter.discover_positions(path)
           object: (identifier) @func_name (#any-of? @func_name "it" "test")
         )
       )
-      arguments: (arguments (string (string_fragment) @test.name) [(arrow_function) (call_expression) (function)])
+      arguments: (arguments (string (string_fragment) @test.name) [(arrow_function) (call_expression function: (identifier) @util_name (#any-of? @util_name "fakeAsync" "waitForAsync")) (function)])
     )) @test.definition
   ]]
 
@@ -243,17 +243,17 @@ end
 local function escapeTestPattern(s)
   return (
     s:gsub("%(", "%\\(")
-    :gsub("%)", "%\\)")
-    :gsub("%]", "%\\]")
-    :gsub("%[", "%\\[")
-    :gsub("%*", "%\\*")
-    :gsub("%+", "%\\+")
-    :gsub("%-", "%\\-")
-    :gsub("%?", "%\\?")
-    :gsub("%$", "%\\$")
-    :gsub("%^", "%\\^")
-    :gsub("%/", "%\\/")
-    :gsub("%'", "%\\'")
+      :gsub("%)", "%\\)")
+      :gsub("%]", "%\\]")
+      :gsub("%[", "%\\[")
+      :gsub("%*", "%\\*")
+      :gsub("%+", "%\\+")
+      :gsub("%-", "%\\-")
+      :gsub("%?", "%\\?")
+      :gsub("%$", "%\\$")
+      :gsub("%^", "%\\^")
+      :gsub("%/", "%\\/")
+      :gsub("%'", "%\\'")
   )
 end
 
@@ -294,10 +294,10 @@ end
 
 local function cleanAnsi(s)
   return s:gsub("\x1b%[%d+;%d+;%d+;%d+;%d+m", "")
-      :gsub("\x1b%[%d+;%d+;%d+;%d+m", "")
-      :gsub("\x1b%[%d+;%d+;%d+m", "")
-      :gsub("\x1b%[%d+;%d+m", "")
-      :gsub("\x1b%[%d+m", "")
+    :gsub("\x1b%[%d+;%d+;%d+;%d+m", "")
+    :gsub("\x1b%[%d+;%d+;%d+m", "")
+    :gsub("\x1b%[%d+;%d+m", "")
+    :gsub("\x1b%[%d+m", "")
 end
 
 local function findErrorPosition(file, errStr)
