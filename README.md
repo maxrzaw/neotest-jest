@@ -14,7 +14,7 @@ use({
   'nvim-neotest/neotest',
   requires = {
     ...,
-    'haydenmeade/neotest-jest',
+    'nvim-neotest/neotest-jest',
   }
   config = function()
     require('neotest').setup({
@@ -54,7 +54,7 @@ require('neotest').setup({
   ...,
   adapters = {
     require('neotest-jest')({
-      jestCommand = "jest --watch ",
+      jestCommand = require('neotest-jest.jest-util').getJestCommand(vim.fn.expand '%:p:h') .. ' --watch',
     }),
   }
 })
@@ -65,6 +65,34 @@ or add a specific keymap to run tests with watch mode:
 ```lua
 vim.api.nvim_set_keymap("n", "<leader>tw", "<cmd>lua require('neotest').run.run({ jestCommand = 'jest --watch ' })<cr>", {})
 ```
+
+### Parameterized tests
+
+If you want to allow to `neotest-jest` to discover parameterized tests you need to enable flag
+`jest_test_discovery` in config setup:
+```lua
+require('neotest').setup({
+  ...,
+  adapters = {
+    require('neotest-jest')({
+      ...,
+      jest_test_discovery = false,
+    }),
+  }
+})
+```
+Its also recommended to disable `neotest` `discovery` option like this:
+```lua
+require("neotest").setup({
+	...,
+	discovery = {
+		enabled = false,
+	},
+})
+```
+because `jest_test_discovery` runs `jest` command on file to determine
+what tests are inside the file. If `discovery` would be enabled then `neotest-jest`
+would spawn a lot of procesees.
 
 ### Monorepos
 If you have a monorepo setup, you might have to do a little more configuration, especially if
